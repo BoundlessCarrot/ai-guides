@@ -2,40 +2,41 @@
 
 ## Table of Contents
 
-1. Introduction
-   1.1 What is Raylib?
-   1.2 Why use Raylib with Zig?
-2. Setting Up Your Environment
-   2.1 Installing Zig
-   2.2 Setting up Raylib for Zig
-   2.3 Configuring your build.zig file
-3. Raylib Basics in Zig
-   3.1 Window Creation and Management
-   3.2 Drawing Shapes and Text
-   3.3 Handling Input
-   3.4 Playing Audio
-4. 2D Graphics with Raylib
-   4.1 Textures and Images
-   4.2 Sprite Rendering
-   4.3 Animation Basics
-5. 3D Graphics Fundamentals
-   5.1 3D Shapes and Models
-   5.2 Camera Systems
-   5.3 Lighting and Shaders
-6. Advanced Raylib Features
-   6.1 Raygui for Immediate Mode GUI
-   6.2 Networking Basics
-   6.3 Using Raylib's Math Functions
-7. Optimizing Raylib Applications in Zig
-   7.1 Leveraging Zig's Comptime Features
-   7.2 Memory Management Best Practices
-   7.3 Performance Tuning
-8. Real-World Examples
-   8.1 Building a Simple 2D Game
-   8.2 Creating a 3D Visualization Tool
-   8.3 Developing a GUI Application
-9. Troubleshooting and Best Practices
-10. Conclusion and Further Resources
+   * [1. Introduction](#1-introduction)
+      + [1.1 What is Raylib?](#11-what-is-raylib)
+      + [1.2 Why use Raylib with Zig?](#12-why-use-raylib-with-zig)
+   * [2. Setting Up Your Environment](#2-setting-up-your-environment)
+      + [2.1 Installing Zig](#21-installing-zig)
+      + [2.2 Setting up Raylib for Zig](#22-setting-up-raylib-for-zig)
+      + [2.3 Configuring your build.zig file](#23-configuring-your-buildzig-file)
+   * [Chapter 3: Raylib Basics in Zig](#chapter-3-raylib-basics-in-zig)
+      + [3.0 Understanding the Main Loop](#30-understanding-the-main-loop)
+      + [3.1 Window Creation and Management](#31-window-creation-and-management)
+      + [3.2 Drawing Shapes and Text](#32-drawing-shapes-and-text)
+      + [3.3 Handling Input](#33-handling-input)
+      + [3.4 Playing Audio](#34-playing-audio)
+   * [Chapter 4: 2D Graphics with Raylib](#chapter-4-2d-graphics-with-raylib)
+      + [4.1 Textures and Images](#41-textures-and-images)
+      + [4.2 Sprite Rendering](#42-sprite-rendering)
+      + [4.3 Animation Basics](#43-animation-basics)
+   * [5. 3D Graphics Fundamentals](#5-3d-graphics-fundamentals)
+      + [5.1 3D Shapes and Models](#51-3d-shapes-and-models)
+      + [5.2 Camera Systems](#52-camera-systems)
+      + [5.3 Lighting and Shaders](#53-lighting-and-shaders)
+   * [6. Advanced Raylib Features](#6-advanced-raylib-features)
+      + [6.1 Raygui for Immediate Mode GUI](#61-raygui-for-immediate-mode-gui)
+      + [6.2 Networking Basics](#62-networking-basics)
+      + [6.3 Using Raylib's Math Functions](#63-using-raylibs-math-functions)
+   * [7. Optimizing Raylib Applications in Zig](#7-optimizing-raylib-applications-in-zig)
+      + [7.1 Leveraging Zig's Comptime Features](#71-leveraging-zigs-comptime-features)
+      + [7.2 Memory Management Best Practices](#72-memory-management-best-practices)
+      + [7.3 Performance Tuning](#73-performance-tuning)
+   * [8. Real-World Examples](#8-real-world-examples)
+      + [8.1 Building a Simple 2D Game](#81-building-a-simple-2d-game)
+      + [8.2 Creating a 3D Visualization Tool](#82-creating-a-3d-visualization-tool)
+      + [8.3 Developing a GUI Application](#83-developing-a-gui-application)
+   * [9. Troubleshooting and Best Practices](#9-troubleshooting-and-best-practices)
+   * [10. Conclusion and Further Resources](#10-conclusion-and-further-resources)
 
 ## 1. Introduction
 
@@ -106,7 +107,41 @@ pub fn build(b: *std.Build) void {
 
 This configuration sets up your project to use Raylib and creates a run step for easy execution.
 
-## 3. Raylib Basics in Zig
+## Chapter 3: Raylib Basics in Zig
+
+### 3.0 Understanding the Main Loop
+
+Before we dive into specific Raylib features, it's crucial to understand the concept of the main loop in game development and graphics programming.
+
+The main loop is the heart of any interactive application. It continuously runs while the program is active, handling three primary tasks:
+
+1. Process input
+2. Update game state
+3. Render graphics
+
+In Raylib, this loop is typically structured as follows:
+
+```zig
+while (!raylib.WindowShouldClose()) {
+    // Process input (handled implicitly by Raylib)
+    
+    // Update game state
+    updateGame();
+    
+    // Render graphics
+    raylib.BeginDrawing();
+    drawGame();
+    raylib.EndDrawing();
+}
+```
+
+The separation of update and draw portions is crucial for several reasons:
+
+1. **Logical separation**: Updating game state and rendering graphics are conceptually different tasks. Separating them makes the code more organized and easier to understand.
+
+2. **Performance optimization**: The update loop might run at a different frequency than the draw loop. For example, you might update physics 120 times per second but only draw 60 frames per second.
+
+3. **Consistency**: Separating update and draw ensures that the game state is fully updated before rendering, preventing partial updates from being displayed.
 
 ### 3.1 Window Creation and Management
 
@@ -117,26 +152,36 @@ const std = @import("std");
 const raylib = @import("raylib");
 
 pub fn main() !void {
+    // Initialize the window
     raylib.InitWindow(800, 450, "Raylib in Zig");
-    defer raylib.CloseWindow();
+    defer raylib.CloseWindow(); // Ensure window is closed when we exit
 
-    raylib.SetTargetFPS(60);
+    raylib.SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
-    while (!raylib.WindowShouldClose()) {
+    // Main game loop
+    while (!raylib.WindowShouldClose()) { // Detect window close button or ESC key
+        // Update game variables here (if any)
+
         raylib.BeginDrawing();
-        defer raylib.EndDrawing();
+        defer raylib.EndDrawing(); // Ensure we always end drawing
 
-        raylib.ClearBackground(raylib.RAYWHITE);
+        raylib.ClearBackground(raylib.RAYWHITE); // Clear the background
         raylib.DrawText("Hello, Raylib in Zig!", 190, 200, 20, raylib.LIGHTGRAY);
     }
 }
 ```
 
 This example demonstrates:
-- Initializing a window with `InitWindow`
-- Setting the target frame rate with `SetTargetFPS`
-- The main game loop using `WindowShouldClose`
-- Basic drawing operations with `BeginDrawing`, `EndDrawing`, `ClearBackground`, and `DrawText`
+
+- **Initializing a window** with `InitWindow`: This function sets up the window with the specified width, height, and title.
+- **Setting the target frame rate** with `SetTargetFPS`: This limits the frame rate to make the game consistent across different hardware.
+- **The main game loop** using `WindowShouldClose`: This function returns true when the window's close button is clicked or the ESC key is pressed.
+- **Basic drawing operations**:
+  - `BeginDrawing` and `EndDrawing`: These functions wrap all drawing operations.
+  - `ClearBackground`: This fills the entire window with a specified color.
+  - `DrawText`: This renders text on the screen.
+
+Note the use of `defer` to ensure proper cleanup. This is a Zig feature that guarantees the deferred statement will be executed when the current scope is exited.
 
 ### 3.2 Drawing Shapes and Text
 
@@ -153,15 +198,17 @@ pub fn main() !void {
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
+        // Update game variables here (if any)
+
         raylib.BeginDrawing();
         defer raylib.EndDrawing();
 
         raylib.ClearBackground(raylib.RAYWHITE);
 
         // Drawing shapes
-        raylib.DrawRectangle(50, 50, 200, 100, raylib.RED);
-        raylib.DrawCircle(400, 100, 50, raylib.BLUE);
-        raylib.DrawLine(500, 50, 700, 150, raylib.GREEN);
+        raylib.DrawRectangle(50, 50, 200, 100, raylib.RED); // Draw a red rectangle
+        raylib.DrawCircle(400, 100, 50, raylib.BLUE); // Draw a blue circle
+        raylib.DrawLine(500, 50, 700, 150, raylib.GREEN); // Draw a green line
 
         // Drawing text
         raylib.DrawText("Shapes and Text Example", 250, 20, 20, raylib.BLACK);
@@ -172,7 +219,12 @@ pub fn main() !void {
 }
 ```
 
-This example shows how to draw basic shapes (rectangle, circle, line) and text at various positions with different colors.
+This example demonstrates how to draw basic shapes (rectangle, circle, line) and text at various positions with different colors. 
+
+- `DrawRectangle`: Takes parameters for position (x, y), size (width, height), and color.
+- `DrawCircle`: Requires center position (x, y), radius, and color.
+- `DrawLine`: Needs start point (x1, y1), end point (x2, y2), and color.
+- `DrawText`: Allows you to specify the text, position, font size, and color.
 
 ### 3.3 Handling Input
 
@@ -192,11 +244,12 @@ pub fn main() !void {
 
     while (!raylib.WindowShouldClose()) {
         // Update
-        if (raylib.IsKeyDown(raylib.KEY_RIGHT)) ballPosition.x += 2.0;
-        if (raylib.IsKeyDown(raylib.KEY_LEFT)) ballPosition.x -= 2.0;
-        if (raylib.IsKeyDown(raylib.KEY_UP)) ballPosition.y -= 2.0;
-        if (raylib.IsKeyDown(raylib.KEY_DOWN)) ballPosition.y += 2.0;
+        if (raylib.IsKeyDown(raylib.KEY_RIGHT)) ballPosition.x += 2.0; // Move right
+        if (raylib.IsKeyDown(raylib.KEY_LEFT)) ballPosition.x -= 2.0;  // Move left
+        if (raylib.IsKeyDown(raylib.KEY_UP)) ballPosition.y -= 2.0;    // Move up
+        if (raylib.IsKeyDown(raylib.KEY_DOWN)) ballPosition.y += 2.0;  // Move down
 
+        // Teleport ball to mouse position on left click
         if (raylib.IsMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
             ballPosition = raylib.GetMousePosition();
         }
@@ -212,10 +265,13 @@ pub fn main() !void {
 }
 ```
 
-This example shows how to:
-- Handle continuous keyboard input with `IsKeyDown`
-- Detect mouse clicks with `IsMouseButtonPressed`
-- Get the mouse position with `GetMousePosition`
+This example illustrates how to:
+
+- Handle continuous keyboard input with `IsKeyDown`: Checks if a key is currently being held down.
+- Detect mouse clicks with `IsMouseButtonPressed`: Checks if a mouse button was pressed this frame.
+- Get the mouse position with `GetMousePosition`: Returns the current mouse coordinates.
+
+Note how we separate the input handling and game state update (in this case, updating the ball's position) from the drawing code. This separation follows the principle we discussed in the main loop section.
 
 ### 3.4 Playing Audio
 
@@ -229,18 +285,18 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "Audio Playback");
     defer raylib.CloseWindow();
 
-    raylib.InitAudioDevice();
-    defer raylib.CloseAudioDevice();
+    raylib.InitAudioDevice(); // Initialize audio device
+    defer raylib.CloseAudioDevice(); // Make sure to close the audio device
 
     const sound = raylib.LoadSound("resources/sound.wav");
-    defer raylib.UnloadSound(sound);
+    defer raylib.UnloadSound(sound); // Unload sound data from memory
 
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
         // Update
         if (raylib.IsKeyPressed(raylib.KEY_SPACE)) {
-            raylib.PlaySound(sound);
+            raylib.PlaySound(sound); // Play loaded sound
         }
 
         // Draw
@@ -254,11 +310,16 @@ pub fn main() !void {
 ```
 
 This example demonstrates:
-- Initializing the audio device
-- Loading and unloading a sound file
-- Playing a sound in response to user input
 
-## 4. 2D Graphics with Raylib
+- Initializing the audio device with `InitAudioDevice`: This must be called before loading or playing any audio.
+- Loading and unloading a sound file: `LoadSound` reads a sound file into memory, while `UnloadSound` frees that memory.
+- Playing a sound in response to user input: `PlaySound` is called when the space key is pressed.
+
+Note the use of `defer` for both closing the audio device and unloading the sound. This ensures proper resource management even if an error occurs during execution.
+
+Remember to replace `"resources/sound.wav"` with the path to your actual sound file.
+
+## Chapter 4: 2D Graphics with Raylib
 
 ### 4.1 Textures and Images
 
