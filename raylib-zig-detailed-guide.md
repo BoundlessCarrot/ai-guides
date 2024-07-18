@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-   * [1. Introduction](#1-introduction)
+   * [Chapter 1. Introduction](#1-introduction)
       + [1.1 What is Raylib?](#11-what-is-raylib)
       + [1.2 Why use Raylib with Zig?](#12-why-use-raylib-with-zig)
-   * [2. Setting Up Your Environment](#2-setting-up-your-environment)
+   * [Chapter 2. Setting Up Your Environment](#2-setting-up-your-environment)
       + [2.1 Installing Zig](#21-installing-zig)
       + [2.2 Setting up Raylib for Zig](#22-setting-up-raylib-for-zig)
       + [2.3 Configuring your build.zig file](#23-configuring-your-buildzig-file)
@@ -19,24 +19,29 @@
       + [4.1 Textures and Images](#41-textures-and-images)
       + [4.2 Sprite Rendering](#42-sprite-rendering)
       + [4.3 Animation Basics](#43-animation-basics)
-   * [5. 3D Graphics Fundamentals](#5-3d-graphics-fundamentals)
+   * [Chapter 5. 3D Graphics Fundamentals](#5-3d-graphics-fundamentals)
       + [5.1 3D Shapes and Models](#51-3d-shapes-and-models)
       + [5.2 Camera Systems](#52-camera-systems)
       + [5.3 Lighting and Shaders](#53-lighting-and-shaders)
-   * [6. Advanced Raylib Features](#6-advanced-raylib-features)
+   * [Chapter 6. Advanced Raylib Features](#6-advanced-raylib-features)
       + [6.1 Raygui for Immediate Mode GUI](#61-raygui-for-immediate-mode-gui)
       + [6.2 Networking Basics](#62-networking-basics)
       + [6.3 Using Raylib's Math Functions](#63-using-raylibs-math-functions)
-   * [7. Optimizing Raylib Applications in Zig](#7-optimizing-raylib-applications-in-zig)
+   * [Chapter 7. Optimizing Raylib Applications in Zig](#7-optimizing-raylib-applications-in-zig)
       + [7.1 Leveraging Zig's Comptime Features](#71-leveraging-zigs-comptime-features)
       + [7.2 Memory Management Best Practices](#72-memory-management-best-practices)
       + [7.3 Performance Tuning](#73-performance-tuning)
-   * [8. Real-World Examples](#8-real-world-examples)
+      + [7.4 Profiling and Benchmarking](#74-profiling-and-benchmarking)
+   * [Chapter 8. Real-World Examples](#8-real-world-examples)
       + [8.1 Building a Simple 2D Game](#81-building-a-simple-2d-game)
       + [8.2 Creating a 3D Visualization Tool](#82-creating-a-3d-visualization-tool)
       + [8.3 Developing a GUI Application](#83-developing-a-gui-application)
-   * [9. Troubleshooting and Best Practices](#9-troubleshooting-and-best-practices)
-   * [10. Conclusion and Further Resources](#10-conclusion-and-further-resources)
+   * [Chapter 9. Troubleshooting and Best Practices](#9-troubleshooting-and-best-practices)
+      + [9.1 Common Issues and Solutions](#91-common-issues-and-solutions)
+      + [9.2 Best Practices](#92-best-practices)
+      + [9.3 Performance Optimization](#93-performance-optimization)
+      + [9.4 Debugging Techniques](#94-debugging-techniques)
+   * [Chapter 10. Conclusion and Further Resources](#10-conclusion-and-further-resources)
 
 ## 1. Introduction
 
@@ -134,6 +139,13 @@ while (!raylib.WindowShouldClose()) {
     raylib.EndDrawing();
 }
 ```
+
+In this structure:
+
+The while loop continues until the window is closed.
+    * updateGame() is called to update the game state.
+    * BeginDrawing() and EndDrawing() wrap the drawing code, managing the rendering context.
+    * drawGame() is called to render the current game state.
 
 The separation of update and draw portions is crucial for several reasons:
 
@@ -323,7 +335,9 @@ Remember to replace `"resources/sound.wav"` with the path to your actual sound f
 
 ### 4.1 Textures and Images
 
-Raylib makes it easy to work with textures and images. Here's an example of loading and drawing a texture:
+Raylib provides powerful yet simple-to-use functions for working with textures and images. Textures are one of the fundamental building blocks for creating visually appealing 2D graphics.
+
+Here's an example of loading and drawing a texture:
 
 ```zig
 const std = @import("std");
@@ -333,30 +347,49 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "Texture Example");
     defer raylib.CloseWindow();
 
+    // Load the texture from a file
     const texture = raylib.LoadTexture("resources/texture.png");
+    // Make sure to unload the texture when we're done
     defer raylib.UnloadTexture(texture);
 
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
+        // Begin drawing
         raylib.BeginDrawing();
         defer raylib.EndDrawing();
 
+        // Clear the background
         raylib.ClearBackground(raylib.RAYWHITE);
-        raylib.DrawTexture(texture, 400 - @divFloor(texture.width, 2), 225 - @divFloor(texture.height, 2), raylib.WHITE);
+
+        // Draw the texture centered on the screen
+        raylib.DrawTexture(
+            texture, 
+            400 - @divFloor(texture.width, 2),  // Center horizontally
+            225 - @divFloor(texture.height, 2), // Center vertically
+            raylib.WHITE
+        );
+
+        // Draw some explanatory text
         raylib.DrawText("This is a texture!", 300, 370, 20, raylib.LIGHTGRAY);
     }
 }
 ```
 
-This example shows how to:
-- Load a texture from a file
-- Draw the texture centered on the screen
-- Properly unload the texture when it's no longer needed
+This example demonstrates several important concepts:
 
-### 4.2 Sprite Rendering
+1. **Loading a texture**: Use `raylib.LoadTexture()` to load an image file into GPU memory.
+2. **Resource management**: Use Zig's `defer` to ensure the texture is unloaded when it's no longer needed.
+3. **Drawing a texture**: Use `raylib.DrawTexture()` to render the texture on the screen.
+4. **Positioning**: Calculate the position to center the texture on the screen.
 
-For game development, you'll often work with sprites. Here's an example of rendering a sprite from a sprite sheet:
+Remember, textures are stored in GPU memory, which is limited. Always unload textures when they're no longer needed to free up memory for other resources.
+
+## 4.2 Sprite Rendering
+
+Sprites are a fundamental concept in 2D game development. They are typically small images that represent characters, objects, or parts of the background. Often, multiple sprites are combined into a single image called a sprite sheet to optimize memory usage and rendering performance.
+
+Here's an example of rendering a sprite from a sprite sheet:
 
 ```zig
 const std = @import("std");
@@ -366,12 +399,15 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "Sprite Example");
     defer raylib.CloseWindow();
 
+    // Load the sprite sheet
     const spriteSheet = raylib.LoadTexture("resources/spritesheet.png");
     defer raylib.UnloadTexture(spriteSheet);
 
+    // Calculate the dimensions of a single frame
     const frameWidth = @divFloor(spriteSheet.width, 8);
     const frameHeight = @divFloor(spriteSheet.height, 4);
 
+    // Define the source rectangle for our sprite
     var frameRec = raylib.Rectangle{
         .x = 0,
         .y = 0,
@@ -400,27 +436,41 @@ pub fn main() !void {
         defer raylib.EndDrawing();
 
         raylib.ClearBackground(raylib.RAYWHITE);
-        raylib.DrawTextureRec(spriteSheet, frameRec, .{ .x = 400 - @as(f32, @floatFromInt(frameWidth)) / 2, .y = 225 - @as(f32, @floatFromInt(frameHeight)) / 2 }, raylib.WHITE);
+        
+        // Draw the current frame of the sprite
+        raylib.DrawTextureRec(
+            spriteSheet, 
+            frameRec, 
+            .{ 
+                .x = 400 - @as(f32, @floatFromInt(frameWidth)) / 2, 
+                .y = 225 - @as(f32, @floatFromInt(frameHeight)) / 2 
+            }, 
+            raylib.WHITE
+        );
+        
         raylib.DrawText("Animated Sprite!", 300, 370, 20, raylib.LIGHTGRAY);
     }
 }
 ```
 
-This example demonstrates:
-- Loading a sprite sheet
-- Calculating frame dimensions
-- Animating the sprite by changing the source rectangle
-- Drawing a portion of a texture (sprite frame)
+This example introduces several new concepts:
 
-### 4.3 Animation Basics
+1. **Sprite sheets**: A single image containing multiple sprites. Here, we're assuming a sheet with 8 columns and 4 rows.
+2. **Frame selection**: We use a `Rectangle` to define which part of the sprite sheet to draw.
+3. **Animation**: By changing the `x` coordinate of our source rectangle, we can cycle through different sprites in the sheet.
+4. **Timing**: We use a counter to control the speed of the animation, independent of the frame rate.
 
-Building on the previous example, let's create a more structured animation system:
+The `DrawTextureRec` function is key here. It allows us to draw only a portion of a texture, which is perfect for sprite sheets.
 
+## 4.3 Animation Basics
+
+Building on the previous example, let's create a more structured animation system. This approach will make it easier to manage multiple animations and provide a cleaner interface for updating and drawing animated sprites.
 
 ```zig
 const std = @import("std");
 const raylib = @import("raylib");
 
+// Define an Animation struct to encapsulate animation logic
 const Animation = struct {
     texture: raylib.Texture2D,
     frames: u32,
@@ -429,6 +479,7 @@ const Animation = struct {
     frameDuration: f32,
     frameTime: f32,
 
+    // Initialize a new animation
     pub fn init(texture: raylib.Texture2D, frames: u32, frameDuration: f32) Animation {
         const frameWidth = @divFloor(texture.width, frames);
         return .{
@@ -446,6 +497,7 @@ const Animation = struct {
         };
     }
 
+    // Update the animation state
     pub fn update(self: *Animation, deltaTime: f32) void {
         self.frameTime += deltaTime;
         if (self.frameTime >= self.frameDuration) {
@@ -455,6 +507,7 @@ const Animation = struct {
         }
     }
 
+    // Draw the current frame of the animation
     pub fn draw(self: Animation, position: raylib.Vector2) void {
         raylib.DrawTextureRec(self.texture, self.frameRec, position, raylib.WHITE);
     }
@@ -464,9 +517,11 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "Animation Example");
     defer raylib.CloseWindow();
 
+    // Load the sprite sheet
     const spriteSheet = raylib.LoadTexture("resources/run_animation.png");
     defer raylib.UnloadTexture(spriteSheet);
 
+    // Create an animation with 8 frames, each lasting 1/12 of a second
     var runAnimation = Animation.init(spriteSheet, 8, 1.0 / 12.0);
     var position = raylib.Vector2{ .x = 400, .y = 225 };
 
@@ -487,10 +542,18 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Creating a reusable Animation struct
-- Implementing update and draw methods for the animation
-- Using delta time for frame-rate independent animation
+This example introduces several advanced concepts:
+
+1. **Struct-based animation**: We define an `Animation` struct to encapsulate all the logic and data for an animation.
+2. **Delta time**: We use `GetFrameTime()` to get the time elapsed since the last frame, allowing for frame-rate independent animation.
+3. **Modular design**: The `Animation` struct has separate `update` and `draw` methods, adhering to the separation of concerns principle.
+
+This structured approach offers several benefits:
+- It's easier to manage multiple animations.
+- The animation logic is encapsulated, making the main loop cleaner.
+- It's more flexible, allowing for easy changes to animation parameters.
+
+By understanding these 2D graphics concepts and techniques, you're well on your way to creating visually appealing and efficient 2D games and applications with Raylib and Zig. Remember to experiment with different textures, sprite layouts, and animation timings to achieve the desired visual effects for your projects.
 
 ## 5. 3D Graphics Fundamentals
 
@@ -498,7 +561,7 @@ Raylib provides robust support for 3D graphics. Let's explore some 3D concepts a
 
 ### 5.1 3D Shapes and Models
 
-Let's start with a basic example of rendering 3D shapes:
+Raylib offers a variety of functions to create and manipulate 3D shapes. Let's start with a basic example of rendering 3D shapes:
 
 ```zig
 const std = @import("std");
@@ -509,19 +572,20 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "3D Shapes");
     defer raylib.CloseWindow();
 
+    // Initialize the camera
     var camera = raylib.Camera3D{
-        .position = .{ .x = 10.0, .y = 10.0, .z = 10.0 },
-        .target = .{ .x = 0.0, .y = 0.0, .z = 0.0 },
-        .up = .{ .x = 0.0, .y = 1.0, .z = 0.0 },
-        .fovy = 45.0,
-        .projection = raylib.CAMERA_PERSPECTIVE,
+        .position = .{ .x = 10.0, .y = 10.0, .z = 10.0 }, // Camera position
+        .target = .{ .x = 0.0, .y = 0.0, .z = 0.0 },      // Camera looking at point
+        .up = .{ .x = 0.0, .y = 1.0, .z = 0.0 },          // Camera up vector (rotation towards target)
+        .fovy = 45.0,                                     // Camera field-of-view Y
+        .projection = raylib.CAMERA_PERSPECTIVE,          // Camera projection type
     };
 
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
         // Update
-        raylib.UpdateCamera(&camera, raylib.CAMERA_ORBITAL);
+        raylib.UpdateCamera(&camera, raylib.CAMERA_ORBITAL); // Update camera with orbital camera mode
 
         // Draw
         raylib.BeginDrawing();
@@ -532,15 +596,19 @@ pub fn main() !void {
         raylib.BeginMode3D(camera);
         defer raylib.EndMode3D();
 
+        // Draw a red cube
         raylib.DrawCube(.{ .x = -2.0, .y = 0.0, .z = 0.0 }, 2.0, 2.0, 2.0, raylib.RED);
         raylib.DrawCubeWires(.{ .x = -2.0, .y = 0.0, .z = 0.0 }, 2.0, 2.0, 2.0, raylib.MAROON);
 
+        // Draw a blue sphere
         raylib.DrawSphere(.{ .x = 2.0, .y = 0.0, .z = 0.0 }, 1.0, raylib.BLUE);
         raylib.DrawSphereWires(.{ .x = 2.0, .y = 0.0, .z = 0.0 }, 1.0, 16, 16, raylib.DARKBLUE);
 
+        // Draw a green cylinder
         raylib.DrawCylinder(.{ .x = 0.0, .y = 0.0, .z = -2.0 }, 0.5, 0.5, 2.0, 16, raylib.GREEN);
         raylib.DrawCylinderWires(.{ .x = 0.0, .y = 0.0, .z = -2.0 }, 0.5, 0.5, 2.0, 16, raylib.DARKGREEN);
 
+        // Draw a 3D grid
         raylib.DrawGrid(10, 1.0);
 
         raylib.DrawText("3D Shapes", 10, 40, 20, raylib.DARKGRAY);
@@ -548,15 +616,23 @@ pub fn main() !void {
 }
 ```
 
-This example shows:
-- Setting up a 3D camera
-- Using BeginMode3D and EndMode3D for 3D rendering
-- Drawing basic 3D shapes (cube, sphere, cylinder)
-- Using an orbital camera for easy 3D scene navigation
+This example demonstrates several key concepts in 3D graphics with Raylib:
+
+1. **Camera Setup**: We initialize a `Camera3D` struct, which defines the camera's position, target, up vector, field of view, and projection type.
+
+2. **3D Mode**: We use `BeginMode3D()` and `EndMode3D()` to encapsulate our 3D drawing commands.
+
+3. **3D Shapes**: Raylib provides functions to draw basic 3D shapes like cubes (`DrawCube()`), spheres (`DrawSphere()`), and cylinders (`DrawCylinder()`).
+
+4. **Wireframe Rendering**: Each shape has a corresponding wireframe drawing function (e.g., `DrawCubeWires()`), useful for debugging or creating certain visual effects.
+
+5. **3D Grid**: The `DrawGrid()` function provides a visual reference for the 3D space.
+
+6. **Orbital Camera**: We use `UpdateCamera()` with `CAMERA_ORBITAL` mode, allowing the user to orbit around the scene using mouse input.
 
 ### 5.2 Camera Systems
 
-Raylib supports different camera modes. Let's explore how to implement a first-person camera:
+Raylib supports different camera modes, each suitable for different types of 3D applications. Let's explore how to implement a first-person camera:
 
 ```zig
 const std = @import("std");
@@ -567,20 +643,21 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "3D First Person Camera");
     defer raylib.CloseWindow();
 
+    // Initialize the camera
     var camera = raylib.Camera3D{
-        .position = .{ .x = 0.0, .y = 2.0, .z = 4.0 },
-        .target = .{ .x = 0.0, .y = 2.0, .z = 0.0 },
-        .up = .{ .x = 0.0, .y = 1.0, .z = 0.0 },
-        .fovy = 60.0,
-        .projection = raylib.CAMERA_PERSPECTIVE,
+        .position = .{ .x = 0.0, .y = 2.0, .z = 4.0 }, // Camera position
+        .target = .{ .x = 0.0, .y = 2.0, .z = 0.0 },   // Camera looking at point
+        .up = .{ .x = 0.0, .y = 1.0, .z = 0.0 },       // Camera up vector (rotation towards target)
+        .fovy = 60.0,                                  // Camera field-of-view Y
+        .projection = raylib.CAMERA_PERSPECTIVE,       // Camera projection type
     };
 
-    raylib.SetCameraMode(camera, raylib.CAMERA_FIRST_PERSON);
+    raylib.SetCameraMode(camera, raylib.CAMERA_FIRST_PERSON); // Set first person camera mode
 
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
-        // Update
+        // Update camera
         raylib.UpdateCamera(&camera);
 
         // Draw
@@ -592,12 +669,14 @@ pub fn main() !void {
         raylib.BeginMode3D(camera);
         defer raylib.EndMode3D();
 
+        // Draw some cubes around the scene
         raylib.DrawCube(.{ .x = -2.0, .y = 1.0, .z = -2.0 }, 2.0, 2.0, 2.0, raylib.RED);
         raylib.DrawCubeWires(.{ .x = -2.0, .y = 1.0, .z = -2.0 }, 2.0, 2.0, 2.0, raylib.MAROON);
 
         raylib.DrawCube(.{ .x = 2.0, .y = 1.0, .z = 2.0 }, 2.0, 2.0, 2.0, raylib.BLUE);
         raylib.DrawCubeWires(.{ .x = 2.0, .y = 1.0, .z = 2.0 }, 2.0, 2.0, 2.0, raylib.DARKBLUE);
 
+        // Draw a plane to represent the ground
         raylib.DrawPlane(.{ .x = 0.0, .y = 0.0, .z = 0.0 }, .{ .x = 32.0, .y = 32.0 }, raylib.LIGHTGRAY);
         raylib.DrawGrid(10, 1.0);
 
@@ -607,14 +686,19 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Setting up a first-person camera
-- Using UpdateCamera for automatic camera movement based on input
-- Creating a simple 3D environment to navigate
+This example introduces several new concepts:
+
+1. **First Person Camera**: We use `SetCameraMode()` with `CAMERA_FIRST_PERSON` to enable first-person controls.
+
+2. **Camera Updates**: The `UpdateCamera()` function automatically handles input for the first-person camera, allowing the user to look around with the mouse and move with WASD keys.
+
+3. **3D Environment**: We create a simple 3D environment with cubes and a ground plane to navigate through.
+
+The first-person camera mode is particularly useful for creating exploration-based games or architectural walkthroughs.
 
 ### 5.3 Lighting and Shaders
 
-Raylib allows for basic lighting and custom shaders. Let's create a simple example with lighting:
+Raylib allows for basic lighting and custom shaders. Let's create a simple example with dynamic lighting:
 
 ```zig
 const std = @import("std");
@@ -625,6 +709,7 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "3D Lighting");
     defer raylib.CloseWindow();
 
+    // Initialize the camera
     var camera = raylib.Camera3D{
         .position = .{ .x = 2.0, .y = 4.0, .z = 6.0 },
         .target = .{ .x = 0.0, .y = 0.5, .z = 0.0 },
@@ -635,6 +720,7 @@ pub fn main() !void {
 
     raylib.SetCameraMode(camera, raylib.CAMERA_ORBITAL);
 
+    // Initialize lighting parameters
     var lightPosition = raylib.Vector3{ .x = -2.0, .y = 4.0, .z = -2.0 };
     var colors = [_]raylib.Color{ raylib.RED, raylib.GREEN, raylib.BLUE, raylib.YELLOW };
     var colorIndex: usize = 0;
@@ -645,6 +731,7 @@ pub fn main() !void {
         // Update
         raylib.UpdateCamera(&camera);
 
+        // Change light color when space is pressed
         if (raylib.IsKeyPressed(raylib.KEY_SPACE)) {
             colorIndex = (colorIndex + 1) % colors.len;
         }
@@ -658,15 +745,19 @@ pub fn main() !void {
         raylib.BeginMode3D(camera);
         defer raylib.EndMode3D();
 
+        // Draw the light source (represented by a small cube)
         raylib.DrawCube(lightPosition, 0.5, 0.5, 0.5, colors[colorIndex]);
         raylib.DrawCubeWires(lightPosition, 0.5, 0.5, 0.5, raylib.WHITE);
 
+        // Draw a sphere at the center of the scene
         raylib.DrawSphere(.{ .x = 0.0, .y = 0.0, .z = 0.0 }, 0.5, raylib.WHITE);
         raylib.DrawSphereWires(.{ .x = 0.0, .y = 0.0, .z = 0.0 }, 0.5, 16, 16, raylib.WHITE);
 
+        // Draw the ground plane
         raylib.DrawPlane(.{ .x = 0.0, .y = -0.5, .z = 0.0 }, .{ .x = 10.0, .y = 10.0 }, raylib.LIGHTGRAY);
         raylib.DrawGrid(10, 1.0);
 
+        // Draw a wire sphere to represent the light range
         rl.EnableWireMode();
         rl.DrawSphere(.{ .x = 0, .y = 0, .z = 0 }, 2.0, 8, 8, raylib.WHITE);
         rl.DisableWireMode();
@@ -676,16 +767,25 @@ pub fn main() !void {
 }
 ```
 
-This example shows:
-- Setting up a basic lighting environment
-- Changing light color dynamically
-- Using wireframe rendering for certain objects
+This example introduces several lighting and shader-related concepts:
+
+1. **Dynamic Lighting**: We represent a light source with a small cube that changes color when the space key is pressed.
+
+2. **Wire Mode**: We use `rl.EnableWireMode()` and `rl.DisableWireMode()` to draw a wireframe sphere representing the light's range.
+
+3. **Material Properties**: Although not explicitly shown in this example, Raylib allows setting material properties like ambient, diffuse, and specular colors, which interact with lighting.
+
+4. **Shaders**: While not demonstrated here, Raylib supports custom shaders for more advanced lighting and visual effects. You can load and use custom shaders with functions like `LoadShader()` and `BeginShaderMode()`.
+
+These examples provide a foundation for working with 3D graphics in Raylib. As you become more comfortable with these concepts, you can create more complex 3D scenes, implement advanced lighting models, and use custom shaders for unique visual effects.
 
 ## 6. Advanced Raylib Features
 
+In this chapter, we'll explore some of Raylib's more advanced features, including GUI creation, networking capabilities, and mathematical functions. These tools can greatly enhance your game development capabilities with Raylib and Zig.
+
 ### 6.1 Raygui for Immediate Mode GUI
 
-Raygui is Raylib's immediate mode GUI module. Here's an example of using Raygui:
+Raygui is Raylib's immediate mode GUI module, providing a simple way to create user interfaces. Here's an example demonstrating various Raygui features:
 
 ```zig
 const std = @import("std");
@@ -709,12 +809,15 @@ pub fn main() !void {
 
         raylib.ClearBackground(raylib.RAYWHITE);
 
+        // Create a button and check if it's pressed
         if (raygui.GuiButton(.{ .x = 25, .y = 25, .width = 125, .height = 30 }, "Show Message Box")) {
             showMessageBox = true;
         }
 
+        // Set text alignment for the text box
         raygui.GuiSetStyle(raygui.TEXTBOX, raygui.TEXT_ALIGNMENT, raygui.TEXT_ALIGN_CENTER);
 
+        // Create a text box
         if (raygui.GuiTextBox(
             .{ .x = 25, .y = 70, .width = 225, .height = 30 },
             &textBoxText,
@@ -724,6 +827,7 @@ pub fn main() !void {
             textBoxEditMode = !textBoxEditMode;
         }
 
+        // Display a message box if showMessageBox is true
         if (showMessageBox) {
             raygui.GuiLock();
             exitWindow = raygui.GuiMessageBox(
@@ -741,15 +845,21 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Creating buttons with Raygui
-- Using text input boxes
-- Displaying message boxes
-- Locking and unlocking GUI controls
+This example demonstrates several key Raygui features:
+
+1. **Buttons**: `GuiButton()` creates a clickable button. It returns true when clicked.
+
+2. **Text Boxes**: `GuiTextBox()` creates an editable text field. The `textBoxEditMode` variable toggles the edit mode.
+
+3. **Message Boxes**: `GuiMessageBox()` displays a modal dialog box. We use `GuiLock()` and `GuiUnlock()` to prevent interaction with other GUI elements while the message box is open.
+
+4. **Styling**: `GuiSetStyle()` allows you to customize the appearance of GUI elements.
+
+Raygui's immediate mode approach means that you need to call these functions every frame, which can simplify state management in your application.
 
 ### 6.2 Networking Basics
 
-Raylib provides basic networking capabilities. Here's a simple example of a UDP sender and receiver:
+Raylib provides basic networking capabilities, which can be useful for multiplayer games or online features. Here's a simple example of a UDP sender and receiver:
 
 ```zig
 const std = @import("std");
@@ -796,15 +906,21 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Initializing a UDP socket
-- Sending messages when a key is pressed
-- Non-blocking receive of incoming messages
-- Basic error handling with Zig's try keyword
+This example showcases several networking concepts:
+
+1. **UDP Socket Initialization**: We create a UDP socket bound to a specific port.
+
+2. **Sending Messages**: When the space key is pressed, we send a UDP message to localhost.
+
+3. **Non-blocking Receive**: We attempt to receive messages every frame without blocking.
+
+4. **Error Handling**: We use Zig's `try` keyword for error handling.
+
+Note that this is a basic example. In a real application, you'd typically want to handle connections, implement a proper protocol, and manage network-related errors more robustly.
 
 ### 6.3 Using Raylib's Math Functions
 
-Raylib provides a set of math functions that are particularly useful for game development. Let's explore some of these:
+Raylib provides a set of math functions that are particularly useful for game development. These functions are part of the `raymath` module. Let's explore some of these with an interactive example:
 
 ```zig
 const std = @import("std");
@@ -825,12 +941,16 @@ pub fn main() !void {
         const mouse_position = raylib.GetMousePosition();
         
         if (raylib.IsMouseButtonDown(raylib.MOUSE_BUTTON_LEFT)) {
+            // Calculate direction vector from circle to mouse
             const direction = raymath.Vector2Subtract(mouse_position, position);
+            // Normalize and scale the direction to create velocity
             velocity = raymath.Vector2Scale(raymath.Vector2Normalize(direction), 5);
         } else {
+            // Apply simple friction when mouse is not pressed
             velocity = raymath.Vector2Scale(velocity, 0.95);
         }
 
+        // Update position based on velocity
         position = raymath.Vector2Add(position, velocity);
 
         // Draw
@@ -845,30 +965,48 @@ pub fn main() !void {
 }
 ```
 
-This example showcases:
-- Vector operations (addition, subtraction, scaling, normalization)
-- Using mouse input for interactive simulations
-- Basic physics simulation (velocity and position updates)
+This example demonstrates several key mathematical concepts and Raylib math functions:
+
+1. **Vector Operations**: 
+   - `Vector2Subtract`: Calculates the difference between two vectors.
+   - `Vector2Normalize`: Converts a vector to a unit vector (length of 1).
+   - `Vector2Scale`: Multiplies a vector by a scalar value.
+   - `Vector2Add`: Adds two vectors together.
+
+2. **Physics Simulation**: We're implementing a simple physics system where the circle is attracted to the mouse cursor when the left button is held.
+
+3. **Smooth Movement**: By applying the velocity to the position each frame and implementing a simple friction effect, we achieve smooth, natural-looking movement.
+
+These math functions are crucial for many game development tasks, such as character movement, projectile trajectories, and camera control. The `raymath` module provides many more functions for both 2D and 3D mathematics, including matrix operations, quaternions, and various geometric calculations.
+
+By mastering these advanced features - GUI creation, networking, and mathematical operations - you'll be well-equipped to create complex and engaging applications with Raylib and Zig. Remember to explore Raylib's documentation for more advanced features and functions as you continue to develop your projects.
 
 ## 7. Optimizing Raylib Applications in Zig
 
 ### 7.1 Leveraging Zig's Comptime Features
 
-Zig's compile-time features can be used to optimize Raylib applications. Here's an example of using comptime to generate a lookup table for sine values:
+Zig's compile-time features offer powerful optimization opportunities for Raylib applications. Let's explore how to use these features effectively.
+
+#### Compile-time Lookup Tables
+
+One of the most common uses of comptime in game development is generating lookup tables. These tables can significantly improve runtime performance by precomputing values.
 
 ```zig
 const std = @import("std");
 const raylib = @import("raylib");
 const math = std.math;
 
+// Generate a sine lookup table at compile time
 fn generateSineLUT(comptime size: usize) [size]f32 {
     var lut: [size]f32 = undefined;
     for (lut, 0..) |*value, i| {
+        // Calculate sine values and store them in the lookup table
         value.* = @sin(2 * math.pi * @as(f32, @floatFromInt(i)) / @as(f32, @floatFromInt(size)));
     }
     return lut;
 }
 
+// Create a constant lookup table with 360 values
 const SineLUT = generateSineLUT(360);
 
 pub fn main() !void {
@@ -883,8 +1021,10 @@ pub fn main() !void {
 
         raylib.ClearBackground(raylib.RAYWHITE);
 
+        // Draw sine wave using the lookup table
         for (0..800) |i| {
             const x = @as(f32, @floatFromInt(i));
+            // Use the lookup table to get sine values quickly
             const y = 225 + SineLUT[@intCast(@mod(@as(u32, @intCast(i * 2)), 360))] * 200;
             raylib.DrawPixel(@intFromFloat(x), @intFromFloat(y), raylib.RED);
         }
@@ -894,165 +1034,357 @@ pub fn main() !void {
 }
 ```
 
+In this example, we use comptime to generate a lookup table for sine values. This approach offers several benefits:
+
+1. **Performance**: By precomputing the sine values, we avoid expensive runtime calculations.
+2. **Precision**: The lookup table ensures consistent values across all uses.
+3. **Memory efficiency**: The table is stored in the program's read-only data section, not in runtime memory.
+
+#### Compile-time Configuration
+
+Comptime can also be used to create flexible, configuration-driven code without runtime overhead. Here's an example:
+
+```zig
+const std = @import("std");
+const raylib = @import("raylib");
+
+// Define game configurations at compile time
+const GameConfig = struct {
+    window_width: i32,
+    window_height: i32,
+    target_fps: i32,
+    title: []const u8,
+};
+
+// Create different configurations
+const DefaultConfig = GameConfig{
+    .window_width = 800,
+    .window_height = 450,
+    .target_fps = 60,
+    .title = "Default Configuration",
+};
+
+const HighResConfig = GameConfig{
+    .window_width = 1920,
+    .window_height = 1080,
+    .target_fps = 144,
+    .title = "High Resolution Configuration",
+};
+
+// Function to initialize the game with a compile-time configuration
+fn initGame(comptime config: GameConfig) void {
+    raylib.InitWindow(config.window_width, config.window_height, config.title);
+    raylib.SetTargetFPS(config.target_fps);
+}
+
+pub fn main() void {
+    // Choose the configuration at compile time
+    comptime {
+        initGame(DefaultConfig);
+    }
+
+    defer raylib.CloseWindow();
+
+    while (!raylib.WindowShouldClose()) {
+        raylib.BeginDrawing();
+        defer raylib.EndDrawing();
+
+        raylib.ClearBackground(raylib.RAYWHITE);
+        raylib.DrawText("Game running with compile-time configuration", 10, 10, 20, raylib.DARKGRAY);
+    }
+}
+```
+
 This example demonstrates:
-- Using comptime to generate a lookup table for sine values
-- Applying the lookup table in a real-time rendering scenario
-- Potential performance improvements by avoiding runtime calculations
+
+- Using comptime to define different game configurations.
+- Applying the chosen configuration at compile time, eliminating runtime checks.
+- Easy switching between configurations without performance penalties.
 
 ### 7.2 Memory Management Best Practices
 
-Efficient memory management is crucial for optimal performance. Here are some best practices when using Raylib with Zig:
+Efficient memory management is crucial for optimal performance in Raylib applications. Zig provides powerful tools for managing memory effectively.
 
-1. Use Zig's allocators wisely:
-   ```zig
-   const std = @import("std");
-   const raylib = @import("raylib");
+#### Using Zig's Allocators
 
-   pub fn main() !void {
-       var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-       defer _ = gpa.deinit();
-       const allocator = gpa.allocator();
+Zig's allocator system allows fine-grained control over memory allocation. Here's an example of using a GeneralPurposeAllocator:
 
-       raylib.InitWindow(800, 450, "Memory Management Example");
-       defer raylib.CloseWindow();
+```zig
+const std = @import("std");
+const raylib = @import("raylib");
 
-       var dynamic_objects = std.ArrayList(raylib.Rectangle).init(allocator);
-       defer dynamic_objects.deinit();
+pub fn main() !void {
+    // Initialize a General Purpose Allocator
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer {
+        // Check for memory leaks when the program exits
+        const leaked = gpa.deinit();
+        if (leaked) std.debug.print("Memory leak detected!\n", .{});
+    }
+    const allocator = gpa.allocator();
 
-       while (!raylib.WindowShouldClose()) {
-           if (raylib.IsMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
-               const mouse_pos = raylib.GetMousePosition();
-               try dynamic_objects.append(.{
-                   .x = mouse_pos.x - 25,
-                   .y = mouse_pos.y - 25,
-                   .width = 50,
-                   .height = 50,
-               });
-           }
+    raylib.InitWindow(800, 450, "Memory Management Example");
+    defer raylib.CloseWindow();
 
-           raylib.BeginDrawing();
-           defer raylib.EndDrawing();
+    // Use an ArrayList to store dynamic objects
+    var dynamic_objects = std.ArrayList(raylib.Rectangle).init(allocator);
+    defer dynamic_objects.deinit();
 
-           raylib.ClearBackground(raylib.RAYWHITE);
+    while (!raylib.WindowShouldClose()) {
+        // Add new rectangles on left mouse click
+        if (raylib.IsMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
+            const mouse_pos = raylib.GetMousePosition();
+            try dynamic_objects.append(.{
+                .x = mouse_pos.x - 25,
+                .y = mouse_pos.y - 25,
+                .width = 50,
+                .height = 50,
+            });
+        }
 
-           for (dynamic_objects.items) |rect| {
-               raylib.DrawRectangleRec(rect, raylib.RED);
-           }
+        raylib.BeginDrawing();
+        defer raylib.EndDrawing();
 
-           raylib.DrawText("Click to add rectangles", 10, 10, 20, raylib.DARKGRAY);
-       }
-   }
-   ```
+        raylib.ClearBackground(raylib.RAYWHITE);
 
-   This example shows:
-   - Using Zig's GeneralPurposeAllocator for dynamic memory allocation
-   - Proper deallocation using defer
-   - Dynamic object creation based on user input
+        // Draw all rectangles
+        for (dynamic_objects.items) |rect| {
+            raylib.DrawRectangleRec(rect, raylib.RED);
+        }
 
-2. Reuse resources when possible:
-   Instead of loading textures or other resources repeatedly, load them once and reuse them throughout your application.
+        raylib.DrawText("Click to add rectangles", 10, 10, 20, raylib.DARKGRAY);
+    }
+}
+```
 
-3. Use Zig's comptime features to avoid runtime allocations where possible.
+Key points in this example:
 
-4. Implement custom allocators for specific use cases if needed.
+- We use `std.heap.GeneralPurposeAllocator` for dynamic memory allocation.
+- The `defer` keyword ensures proper cleanup of resources.
+- `std.ArrayList` is used for dynamic object storage, providing efficient memory management.
+
+#### Resource Reuse
+
+To optimize memory usage and performance, reuse resources when possible:
+
+```zig
+const std = @import("std");
+const raylib = @import("raylib");
+
+pub fn main() !void {
+    raylib.InitWindow(800, 450, "Resource Reuse Example");
+    defer raylib.CloseWindow();
+
+    // Load texture once and reuse it
+    const texture = raylib.LoadTexture("resources/character.png");
+    defer raylib.UnloadTexture(texture);
+
+    var characters = std.ArrayList(raylib.Vector2).init(std.heap.page_allocator);
+    defer characters.deinit();
+
+    while (!raylib.WindowShouldClose()) {
+        if (raylib.IsMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
+            const mouse_pos = raylib.GetMousePosition();
+            try characters.append(mouse_pos);
+        }
+
+        raylib.BeginDrawing();
+        defer raylib.EndDrawing();
+
+        raylib.ClearBackground(raylib.RAYWHITE);
+
+        // Draw all characters using the same texture
+        for (characters.items) |pos| {
+            raylib.DrawTexture(texture, @intFromFloat(pos.x), @intFromFloat(pos.y), raylib.WHITE);
+        }
+
+        raylib.DrawText("Click to add characters", 10, 10, 20, raylib.DARKGRAY);
+    }
+}
+```
+
+This example demonstrates:
+
+- Loading a texture once and reusing it for multiple objects.
+- Using `defer` to ensure proper resource cleanup.
+- Efficient memory usage by storing only positions instead of full object data.
 
 ### 7.3 Performance Tuning
 
 To optimize your Raylib application's performance in Zig, consider the following techniques:
 
-1. Profiling: Use Zig's built-in profiling tools or external profilers to identify performance bottlenecks.
+#### Batching Draw Calls
 
-2. Batching: Group similar draw calls together to reduce state changes:
-
-   ```zig
-   const std = @import("std");
-   const raylib = @import("raylib");
-
-   pub fn main() !void {
-       raylib.InitWindow(800, 450, "Batched Drawing");
-       defer raylib.CloseWindow();
-
-       const num_circles = 1000;
-       var circles: [num_circles]raylib.Vector2 = undefined;
-       var colors: [num_circles]raylib.Color = undefined;
-
-       for (circles, 0..) |*circle, i| {
-           circle.* = .{
-               .x = @floatFromInt(raylib.GetRandomValue(0, 800)),
-               .y = @floatFromInt(raylib.GetRandomValue(0, 450)),
-           };
-           colors[i] = raylib.ColorFromHSV(@floatFromInt(raylib.GetRandomValue(0, 360)), 1, 1);
-       }
-
-       raylib.SetTargetFPS(60);
-
-       while (!raylib.WindowShouldClose()) {
-           raylib.BeginDrawing();
-           defer raylib.EndDrawing();
-
-           raylib.ClearBackground(raylib.RAYWHITE);
-
-           for (circles, colors) |circle, color| {
-               raylib.DrawCircleV(circle, 5, color);
-           }
-
-           raylib.DrawFPS(10, 10);
-       }
-   }
-   ```
-
-   This example demonstrates batching by drawing multiple circles in a single loop, reducing the number of function calls.
-
-3. Use appropriate data structures: Choose data structures that align with your access patterns and performance requirements.
-
-4. Minimize state changes: Raylib state changes (like changing shaders or blend modes) can be expensive. Group operations that use the same state together.
-
-5. Use Zig's packed structs for data that needs to be tightly packed in memory:
-
-   ```zig
-   const Vertex = packed struct {
-       x: f32,
-       y: f32,
-       z: f32,
-       color: u32,
-   };
-   ```
-
-6. Leverage SIMD instructions when appropriate, using Zig's vector types:
-
-   ```zig
-   const Vec4 = @Vector(4, f32);
-
-   pub fn add_vectors(a: Vec4, b: Vec4) Vec4 {
-       return a + b;
-   }
-   ```
-
-By applying these optimization techniques, you can significantly improve the performance of your Raylib applications in Zig.
-
-## 8. Real-World Examples
-
-### 8.1 Building a Simple 2D Game
-
-Let's create a simple 2D game using Raylib and Zig. We'll make a basic paddle game where the player needs to keep a ball bouncing:
+Grouping similar draw calls can significantly improve rendering performance:
 
 ```zig
 const std = @import("std");
 const raylib = @import("raylib");
-const rl = raylib.rl;
 
+pub fn main() !void {
+    raylib.InitWindow(800, 450, "Batched Drawing");
+    defer raylib.CloseWindow();
+
+    const num_circles = 1000;
+    var circles: [num_circles]raylib.Vector2 = undefined;
+    var colors: [num_circles]raylib.Color = undefined;
+
+    // Initialize circles and colors
+    for (circles, 0..) |*circle, i| {
+        circle.* = .{
+            .x = @floatFromInt(raylib.GetRandomValue(0, 800)),
+            .y = @floatFromInt(raylib.GetRandomValue(0, 450)),
+        };
+        colors[i] = raylib.ColorFromHSV(@floatFromInt(raylib.GetRandomValue(0, 360)), 1, 1);
+    }
+
+    raylib.SetTargetFPS(60);
+
+    while (!raylib.WindowShouldClose()) {
+        raylib.BeginDrawing();
+        defer raylib.EndDrawing();
+
+        raylib.ClearBackground(raylib.RAYWHITE);
+
+        // Batch draw all circles
+        for (circles, colors) |circle, color| {
+            raylib.DrawCircleV(circle, 5, color);
+        }
+
+        raylib.DrawFPS(10, 10);
+    }
+}
+```
+
+This example demonstrates:
+
+- Batching draw calls for multiple objects in a single loop.
+- Precomputing object properties to avoid per-frame calculations.
+- Using Raylib's color functions for efficient color generation.
+
+#### Using Packed Structs
+
+Zig's packed structs can be used to create memory-efficient data structures:
+
+```zig
+const Vertex = packed struct {
+    x: f32,
+    y: f32,
+    z: f32,
+    color: u32,
+};
+
+// Usage example
+pub fn createVertexBuffer(allocator: std.mem.Allocator, count: usize) ![]Vertex {
+    var buffer = try allocator.alloc(Vertex, count);
+    // Initialize vertices...
+    return buffer;
+}
+```
+
+Packed structs ensure tight packing of data in memory, which can improve cache efficiency and reduce memory usage.
+
+#### Leveraging SIMD Instructions
+
+Zig provides vector types that can leverage SIMD (Single Instruction, Multiple Data) instructions for improved performance:
+
+```zig
+const Vec4 = @Vector(4, f32);
+
+pub fn add_vectors(a: Vec4, b: Vec4) Vec4 {
+    return a + b;
+}
+
+// Usage example
+pub fn updatePositions(positions: []Vec4, velocities: []Vec4) void {
+    for (positions, velocities) |*pos, vel| {
+        pos.* = add_vectors(pos.*, vel);
+    }
+}
+```
+
+This approach can significantly speed up operations on large datasets, such as particle systems or physics simulations.
+
+### 7.4 Profiling and Benchmarking
+
+To identify performance bottlenecks and optimize effectively, it's crucial to profile your Raylib application. Zig provides built-in tools for this purpose.
+
+#### Using Zig's Built-in Timer
+
+Here's an example of how to use Zig's standard library timer for basic profiling:
+
+```zig
+const std = @import("std");
+const raylib = @import("raylib");
+
+pub fn main() !void {
+    raylib.InitWindow(800, 450, "Profiling Example");
+    defer raylib.CloseWindow();
+
+    var timer = try std.time.Timer.start();
+    var frame_times = std.ArrayList(u64).init(std.heap.page_allocator);
+    defer frame_times.deinit();
+
+    while (!raylib.WindowShouldClose()) {
+        timer.reset();
+
+        raylib.BeginDrawing();
+        // Your drawing code here...
+        raylib.EndDrawing();
+
+        const frame_time = timer.read();
+        try frame_times.append(frame_time);
+
+        if (frame_times.items.len >= 60) {
+            var total_time: u64 = 0;
+            for (frame_times.items) |time| {
+                total_time += time;
+            }
+            const avg_frame_time = @as(f64, @floatFromInt(total_time)) / @as(f64, @floatFromInt(frame_times.items.len));
+            std.debug.print("Average frame time: {d:.2} ms\n", .{avg_frame_time / 1_000_000.0});
+            frame_times.clearRetainingCapacity();
+        }
+    }
+}
+```
+
+This example demonstrates:
+
+- Using Zig's `std.time.Timer` to measure frame times.
+- Calculating and printing average frame times for performance analysis.
+
+Remember to compile your application with optimizations enabled (`-O ReleaseFast`) when profiling for accurate results.
+
+By applying these optimization techniques and regularly profiling your application, you can significantly improve the performance of your Raylib applications in Zig.
+
+## 8. Real-World Examples
+
+In this chapter, we'll explore three practical examples of using Raylib with Zig. These examples will demonstrate how to apply the concepts we've learned to create functional applications.
+
+### 8.1 Building a Simple 2D Game
+
+Let's create a simple 2D paddle game where the player needs to keep a ball bouncing. This example will demonstrate how to structure game objects, implement game logic, and handle user input.
+
+```zig
+const std = @import("std");
+const raylib = @import("raylib");
+
+// Define constants for screen dimensions
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 450;
 
+// Define the Paddle struct
 const Paddle = struct {
     position: raylib.Vector2,
     size: raylib.Vector2,
     speed: f32,
 
+    // Method to draw the paddle
     pub fn draw(self: Paddle) void {
         raylib.DrawRectangleV(self.position, self.size, raylib.BLUE);
     }
 
+    // Method to update paddle position based on user input
     pub fn update(self: *Paddle) void {
         if (raylib.IsKeyDown(raylib.KEY_LEFT)) {
             self.position.x -= self.speed;
@@ -1061,6 +1393,7 @@ const Paddle = struct {
             self.position.x += self.speed;
         }
 
+        // Ensure paddle stays within screen boundaries
         if (self.position.x < 0) {
             self.position.x = 0;
         }
@@ -1070,19 +1403,23 @@ const Paddle = struct {
     }
 };
 
+// Define the Ball struct
 const Ball = struct {
     position: raylib.Vector2,
     speed: raylib.Vector2,
     radius: f32,
 
+    // Method to draw the ball
     pub fn draw(self: Ball) void {
         raylib.DrawCircleV(self.position, self.radius, raylib.RED);
     }
 
+    // Method to update ball position and handle wall collisions
     pub fn update(self: *Ball) void {
         self.position.x += self.speed.x;
         self.position.y += self.speed.y;
 
+        // Handle wall collisions
         if (self.position.x < self.radius or self.position.x > SCREEN_WIDTH - self.radius) {
             self.speed.x *= -1;
         }
@@ -1096,12 +1433,14 @@ pub fn main() !void {
     raylib.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Simple Paddle Game");
     defer raylib.CloseWindow();
 
+    // Initialize paddle
     var paddle = Paddle{
         .position = .{ .x = SCREEN_WIDTH / 2 - 50, .y = SCREEN_HEIGHT - 20 },
         .size = .{ .x = 100, .y = 20 },
         .speed = 5,
     };
 
+    // Initialize ball
     var ball = Ball{
         .position = .{ .x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT / 2 },
         .speed = .{ .x = 4, .y = 4 },
@@ -1113,7 +1452,7 @@ pub fn main() !void {
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
-        // Update
+        // Update game objects
         paddle.update();
         ball.update();
 
@@ -1134,11 +1473,12 @@ pub fn main() !void {
 
         // Check if ball is out of bounds
         if (ball.position.y > SCREEN_HEIGHT) {
+            // Reset ball position and score
             ball.position = .{ .x = SCREEN_WIDTH / 2, .y = SCREEN_HEIGHT / 2 };
             score = 0;
         }
 
-        // Draw
+        // Drawing
         raylib.BeginDrawing();
         defer raylib.EndDrawing();
 
@@ -1147,6 +1487,7 @@ pub fn main() !void {
         paddle.draw();
         ball.draw();
 
+        // Draw score
         raylib.DrawText(
             raylib.TextFormat("Score: %d", score),
             10,
@@ -1158,26 +1499,35 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Structuring game objects (Paddle and Ball) as Zig structs
-- Implementing game logic with collision detection
-- Using Raylib's drawing functions for rendering
-- Handling user input for game control
+This example demonstrates several key concepts:
 
+1. **Structuring game objects**: We define `Paddle` and `Ball` as Zig structs, each with their own properties and methods. This encapsulation helps organize the code and makes it easier to manage game objects.
+
+2. **Game logic**: The `update` methods for both `Paddle` and `Ball` handle the game's logic, including movement and basic collision detection with screen boundaries.
+
+3. **User input**: The paddle's `update` method checks for left and right arrow key presses to move the paddle.
+
+4. **Collision detection**: We use Raylib's `CheckCollisionCircleRec` function to detect collisions between the ball and the paddle.
+
+5. **Rendering**: Each game object has its own `draw` method, which is called in the main game loop to render the object.
+
+6. **Score tracking**: We implement a simple scoring system that increments when the ball hits the paddle and resets when the ball goes out of bounds.
+
+This simple game serves as a foundation that can be expanded with additional features like multiple levels, power-ups, or obstacles.
 
 ### 8.2 Creating a 3D Visualization Tool
 
-Now, let's create a simple 3D visualization tool that allows users to view and rotate a 3D model:
+Now, let's create a simple 3D visualization tool that allows users to view and rotate a 3D model. This example will showcase Raylib's 3D capabilities and camera controls.
 
 ```zig
 const std = @import("std");
 const raylib = @import("raylib");
-const rl = raylib.rl;
 
 pub fn main() !void {
     raylib.InitWindow(800, 450, "3D Model Viewer");
     defer raylib.CloseWindow();
 
+    // Initialize 3D camera
     var camera = raylib.Camera3D{
         .position = .{ .x = 10.0, .y = 10.0, .z = 10.0 },
         .target = .{ .x = 0.0, .y = 0.0, .z = 0.0 },
@@ -1186,12 +1536,14 @@ pub fn main() !void {
         .projection = raylib.CAMERA_PERSPECTIVE,
     };
 
+    // Load 3D model and texture
     const model = raylib.LoadModel("resources/models/castle.obj");
     defer raylib.UnloadModel(model);
 
     const texture = raylib.LoadTexture("resources/models/castle_diffuse.png");
     defer raylib.UnloadTexture(texture);
 
+    // Set model texture
     raylib.SetModelMaterialTexture(&model, 0, raylib.MATERIAL_MAP_DIFFUSE, texture);
 
     var rotation: f32 = 0.0;
@@ -1199,8 +1551,7 @@ pub fn main() !void {
     raylib.SetTargetFPS(60);
 
     while (!raylib.WindowShouldClose()) {
-        // Update
-        rotation += 0.5;
+        // Update camera position based on user input
         if (raylib.IsKeyDown(raylib.KEY_RIGHT)) camera.position.x += 0.1;
         if (raylib.IsKeyDown(raylib.KEY_LEFT)) camera.position.x -= 0.1;
         if (raylib.IsKeyDown(raylib.KEY_UP)) camera.position.y += 0.1;
@@ -1208,9 +1559,10 @@ pub fn main() !void {
         if (raylib.IsKeyDown(raylib.KEY_W)) camera.position.z -= 0.1;
         if (raylib.IsKeyDown(raylib.KEY_S)) camera.position.z += 0.1;
 
+        // Update camera
         raylib.UpdateCamera(&camera, raylib.CAMERA_FREE);
 
-        // Draw
+        // Drawing
         raylib.BeginDrawing();
         defer raylib.EndDrawing();
 
@@ -1227,15 +1579,23 @@ pub fn main() !void {
 }
 ```
 
-This example demonstrates:
-- Loading and rendering a 3D model with textures
-- Implementing camera controls for navigation
-- Using Raylib's 3D drawing functions
-- Displaying on-screen instructions and FPS counter
+This 3D visualization tool demonstrates:
+
+1. **3D camera setup**: We initialize a 3D camera with a perspective projection, which allows us to view the 3D scene.
+
+2. **Loading 3D models and textures**: The example shows how to load a 3D model from an OBJ file and apply a texture to it.
+
+3. **Camera controls**: We implement basic camera movement using keyboard input, allowing the user to navigate around the 3D scene.
+
+4. **3D rendering**: The `BeginMode3D` and `EndMode3D` functions are used to render 3D content, including the model and a grid for reference.
+
+5. **On-screen instructions**: We display text to guide the user on how to control the camera.
+
+This example serves as a starting point for more complex 3D applications, such as architectural visualizations or game level editors.
 
 ### 8.3 Developing a GUI Application
 
-Let's create a simple GUI application using Raylib's immediate mode GUI (raygui):
+Finally, let's create a simple GUI application using Raylib's immediate mode GUI (raygui). This example will demonstrate how to create various GUI elements and handle user interactions.
 
 ```zig
 const std = @import("std");
@@ -1246,6 +1606,7 @@ pub fn main() !void {
     raylib.InitWindow(800, 450, "Raylib GUI Example");
     defer raylib.CloseWindow();
 
+    // Initialize form variables
     var name_buf = [_]u8{0} ** 64;
     var age: i32 = 0;
     var is_developer = false;
@@ -1262,8 +1623,10 @@ pub fn main() !void {
 
         raylib.ClearBackground(raylib.RAYWHITE);
 
+        // Set GUI text size
         raygui.GuiSetStyle(raygui.DEFAULT, raygui.TEXT_SIZE, 20);
 
+        // Name input field
         _ = raygui.GuiTextBox(
             .{ .x = 200, .y = 50, .width = 400, .height = 30 },
             &name_buf,
@@ -1271,6 +1634,7 @@ pub fn main() !void {
             true
         );
 
+        // Age slider
         age = @intFromFloat(raygui.GuiSlider(
             .{ .x = 200, .y = 100, .width = 400, .height = 30 },
             "Age: ",
@@ -1280,18 +1644,21 @@ pub fn main() !void {
             100
         ));
 
+        // Developer checkbox
         is_developer = raygui.GuiCheckBox(
             .{ .x = 200, .y = 150, .width = 30, .height = 30 },
             "Is Developer",
             is_developer
         );
 
+        // Color picker
         favorite_color = raygui.GuiColorPicker(
             .{ .x = 200, .y = 200, .width = 200, .height = 200 },
             "Favorite Color",
             favorite_color
         );
 
+        // Submit button
         if (raygui.GuiButton(
             .{ .x = 300, .y = 420, .width = 200, .height = 30 },
             "Submit"
@@ -1300,6 +1667,7 @@ pub fn main() !void {
             show_message_box = true;
         }
 
+        // Display message box with form results
         if (show_message_box) {
             raygui.GuiLock();
             var result = raygui.GuiMessageBox(
@@ -1324,76 +1692,292 @@ pub fn main() !void {
 }
 ```
 
-This example showcases:
-- Creating various GUI elements using raygui (text box, slider, checkbox, color picker)
-- Handling user input through GUI interactions
-- Displaying a message box with form results
-- Locking and unlocking GUI elements
+This GUI application example showcases:
+
+1. **Various GUI elements**: We implement a text input field, slider, checkbox, color picker, and buttons using raygui functions.
+
+2. **User input handling**: The application captures and processes user input for each GUI element.
+
+3. **Dynamic updates**: GUI elements like the age slider update in real-time as the user interacts with them.
+
+4. **Modal dialogs**: We demonstrate how to create and handle a modal message box to display form results.
+
+5. **GUI locking**: The `GuiLock` and `GuiUnlock` functions are used to prevent interaction with other GUI elements while the message box is displayed.
+
+This example provides a foundation for building more complex GUI applications, such as tool configuration interfaces or game menus.
+
+These real-world examples demonstrate how Raylib and Zig can be combined to create a wide range of applications, from games to visualization tools and GUI programs. By understanding and expanding upon these examples, you can start building your own creative projects using this powerful combination of technologies.
 
 ## 9. Troubleshooting and Best Practices
 
-When working with Raylib and Zig, you may encounter some challenges. Here are some common issues and best practices to keep in mind:
+When working with Raylib and Zig, you may encounter various challenges. This chapter will guide you through common issues and best practices to help you create robust and efficient applications.
 
-1. Memory Management:
-   - Always use `defer` to ensure proper resource cleanup.
-   - Be cautious with manual memory management; use Zig's allocators when possible.
+### 9.1 Common Issues and Solutions
 
-2. Error Handling:
-   - Utilize Zig's error handling capabilities (`try`, `catch`, `errdefer`).
-   - Properly propagate errors up the call stack.
+#### Memory Management
 
-3. Type Conversions:
-   - Be aware of type differences between Zig and C (Raylib's underlying language).
-   - Use appropriate casting functions (`@intFromFloat`, `@floatFromInt`, etc.) when necessary.
+Memory management is crucial in Zig. Here are some common issues and their solutions:
 
-4. Performance Optimization:
-   - Use Zig's comptime features for compile-time optimizations.
-   - Profile your code to identify bottlenecks.
+1. **Resource Leaks**: 
+   - Issue: Forgetting to free resources like textures or models.
+   - Solution: Always use `defer` to ensure proper cleanup.
 
-5. Cross-Platform Development:
-   - Test your application on multiple platforms to ensure compatibility.
-   - Use conditional compilation for platform-specific code.
+   ```zig
+   const texture = raylib.LoadTexture("path/to/texture.png");
+   defer raylib.UnloadTexture(texture);
+   ```
 
-6. Updating Raylib:
-   - Keep your Raylib bindings up-to-date with the latest Raylib version.
-   - Be aware of API changes between versions.
+2. **Dangling Pointers**: 
+   - Issue: Accessing memory after it has been freed.
+   - Solution: Use Zig's ownership model and avoid raw pointers when possible.
 
-7. Debugging:
-   - Use Zig's built-in debugging features.
-   - Leverage Raylib's logging functions for additional insight.
+   ```zig
+   // Incorrect
+   var data: *[10]u8 = undefined;
+   // ... use data
+   allocator.free(data);
+   // data is now dangling
 
-Best Practices:
+   // Correct
+   var data = try allocator.alloc(u8, 10);
+   defer allocator.free(data);
+   ```
 
-1. Modular Design:
-   - Organize your code into logical modules.
-   - Use Zig's package system for better code organization.
+#### Error Handling
 
-2. Consistent Styling:
-   - Follow Zig's style guide for consistent and readable code.
+Proper error handling is essential for robust applications:
 
-3. Documentation:
-   - Document your functions and types, especially those interfacing with Raylib.
+1. **Ignoring Errors**: 
+   - Issue: Not handling potential errors from functions.
+   - Solution: Use `try` or explicitly handle errors.
 
-4. Testing:
-   - Write unit tests for your game logic.
-   - Implement integration tests for Raylib interactions.
+   ```zig
+   // Incorrect
+   const file = std.fs.cwd().openFile("data.txt", .{});
 
-5. Resource Management:
-   - Load resources (textures, sounds, models) at startup when possible.
-   - Implement proper resource caching and unloading.
+   // Correct
+   const file = try std.fs.cwd().openFile("data.txt", .{});
+   ```
 
-6. State Management:
-   - Use appropriate data structures for game state.
-   - Consider using an Entity Component System (ECS) for complex games.
+2. **Propagating Errors**: 
+   - Issue: Not properly propagating errors up the call stack.
+   - Solution: Use `try` or return errors explicitly.
 
-7. Input Handling:
-   - Implement a robust input system that can handle multiple input methods.
-   - Consider implementing an input abstraction layer.
+   ```zig
+   fn loadGameData() !GameData {
+       const file = try std.fs.cwd().openFile("data.txt", .{});
+       defer file.close();
+       // ... load data
+   }
+   ```
 
-8. Continuous Integration:
-   - Set up CI/CD pipelines for automated building and testing.
+#### Type Conversions
 
-By following these practices and being aware of common pitfalls, you can create robust and efficient applications using Raylib and Zig.
+Zig and C (Raylib's underlying language) have different type systems:
+
+1. **Implicit Conversions**: 
+   - Issue: Expecting implicit type conversions between Zig and C types.
+   - Solution: Use explicit type conversions.
+
+   ```zig
+   // Incorrect
+   const x: f32 = 10;
+   raylib.DrawPixel(x, 20, raylib.RED);
+
+   // Correct
+   const x: f32 = 10;
+   raylib.DrawPixel(@intFromFloat(x), 20, raylib.RED);
+   ```
+
+### 9.2 Best Practices
+
+#### Modular Design
+
+Organize your code into logical modules for better maintainability:
+
+```zig
+// game/player.zig
+pub const Player = struct {
+    // Player implementation
+};
+
+// game/world.zig
+pub const World = struct {
+    // World implementation
+};
+
+// main.zig
+const player = @import("game/player.zig");
+const world = @import("game/world.zig");
+
+pub fn main() !void {
+    var game_player = player.Player{};
+    var game_world = world.World{};
+    // ... game loop
+}
+```
+
+#### Consistent Styling
+
+Follow Zig's style guide for consistent and readable code:
+
+```zig
+// Good
+const PlayerState = enum {
+    idle,
+    running,
+    jumping,
+};
+
+fn updatePlayer(player: *Player) void {
+    switch (player.state) {
+        .idle => handleIdleState(player),
+        .running => handleRunningState(player),
+        .jumping => handleJumpingState(player),
+    }
+}
+```
+
+#### Documentation
+
+Document your functions and types, especially those interfacing with Raylib:
+
+```zig
+/// Represents a game entity with position and velocity
+pub const Entity = struct {
+    position: raylib.Vector2,
+    velocity: raylib.Vector2,
+
+    /// Updates the entity's position based on its velocity
+    pub fn update(self: *Entity) void {
+        self.position.x += self.velocity.x;
+        self.position.y += self.velocity.y;
+    }
+};
+```
+
+#### Testing
+
+Implement unit tests for your game logic:
+
+```zig
+const std = @import("std");
+const expect = std.testing.expect;
+
+test "Entity.update" {
+    var entity = Entity{
+        .position = .{ .x = 0, .y = 0 },
+        .velocity = .{ .x = 1, .y = 2 },
+    };
+    entity.update();
+    try expect(entity.position.x == 1);
+    try expect(entity.position.y == 2);
+}
+```
+
+### 9.3 Performance Optimization
+
+#### Use Zig's Comptime Features
+
+Leverage compile-time features for optimizations:
+
+```zig
+fn generateLookupTable(comptime size: usize) [size]f32 {
+    var table: [size]f32 = undefined;
+    for (table, 0..) |*value, i| {
+        value.* = @sin(@as(f32, @floatFromInt(i)) / @as(f32, @floatFromInt(size)) * std.math.tau);
+    }
+    return table;
+}
+
+const SineLUT = generateLookupTable(360);
+
+// Use SineLUT in your game loop for fast sine calculations
+```
+
+#### Efficient Data Structures
+
+Choose appropriate data structures for your needs:
+
+```zig
+const GameObject = struct {
+    id: u32,
+    position: raylib.Vector2,
+    // ... other properties
+};
+
+// For fast lookups by ID
+var game_objects = std.AutoHashMap(u32, GameObject).init(allocator);
+
+// For efficient iteration
+var game_object_list = std.ArrayList(GameObject).init(allocator);
+```
+
+#### Batching Draw Calls
+
+Group similar draw calls to reduce state changes:
+
+```zig
+fn renderEntities(entities: []const Entity) void {
+    raylib.BeginDrawing();
+    defer raylib.EndDrawing();
+
+    for (entities) |entity| {
+        raylib.DrawCircleV(entity.position, 10, raylib.RED);
+    }
+}
+```
+
+### 9.4 Debugging Techniques
+
+#### Using Zig's Built-in Debugging Features
+
+Utilize Zig's `std.debug` for logging and assertions:
+
+```zig
+const std = @import("std");
+const debug = std.debug;
+
+fn processGameLogic() !void {
+    debug.print("Processing game logic...\n", .{});
+    // ... game logic
+    debug.assert(player.health > 0, "Player health should never be zero or negative");
+}
+```
+
+#### Leveraging Raylib's Debugging Functions
+
+Use Raylib's drawing functions for visual debugging:
+
+```zig
+fn debugRender() void {
+    raylib.DrawText("Debug Mode", 10, 10, 20, raylib.RED);
+    raylib.DrawCircle(player.x, player.y, 5, raylib.GREEN);
+    raylib.DrawFPS(10, 30);
+}
+```
+
+#### Implement a Debug Console
+
+Create a simple in-game console for debugging:
+
+```zig
+const DebugConsole = struct {
+    logs: std.ArrayList([]const u8),
+    
+    pub fn log(self: *DebugConsole, message: []const u8) !void {
+        try self.logs.append(message);
+    }
+    
+    pub fn render(self: DebugConsole) void {
+        for (self.logs.items, 0..) |log, i| {
+            raylib.DrawText(log, 10, @intCast(30 * i + 50), 15, raylib.DARKGRAY);
+        }
+    }
+};
+```
+
+By following these practices and being aware of common pitfalls, you can create robust and efficient applications using Raylib and Zig. Remember to continually test your code, profile for performance bottlenecks, and iteratively improve your development process.
 
 ## 10. Conclusion and Further Resources
 
