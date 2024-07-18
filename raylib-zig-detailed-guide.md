@@ -1,4 +1,4 @@
-# Comprehensive Guide to Using Raylib with Zig
+# A Comprehensive Guide to Using Raylib with Zig
 
 ## Table of Contents
 
